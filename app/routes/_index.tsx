@@ -18,6 +18,7 @@ export default function Index() {
   return (
     <div>
       <p>logged in as {user.name}</p>
+      <Link to="/room">Join</Link>
       <Link to="/logout">Log out</Link>
     </div>
   );

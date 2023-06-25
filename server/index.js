@@ -1,3 +1,5 @@
+import { createServer } from 'http';
+
 import compression from 'compression';
 import express from 'express';
 import morgan from 'morgan';
@@ -5,6 +7,7 @@ import { createRequestHandler } from '@remix-run/express';
 
 import * as build from '../build/index.js';
 import { broadcastDevReady } from '@remix-run/node';
+import { Server } from 'socket.io';
 
 const app = express();
 
@@ -21,11 +24,34 @@ app.use('/fonts', express.static('public/fonts', { immutable: true, maxAge: '1y'
 
 app.use(morgan('tiny')); // logging
 
-app.all('*', createRequestHandler({ build, mode: process.env.NODE_ENV }));
+const httpServer = createServer(app);
+const io = new Server(httpServer);
+
+io.on('connection', (socket) => {
+  console.info('a user connected');
+  socket.on('chat message', (msg) => {
+    console.log('message: ' + msg);
+    socket.broadcast.emit('chat message', msg);
+  });
+  socket.on('disconnect', () => {
+    console.info('user disconnected');
+  });
+});
+
+app.all(
+  '*',
+  createRequestHandler({
+    build,
+    mode: process.env.NODE_ENV,
+    getLoadContext() {
+      return {};
+    },
+  }),
+);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.info(`Running app in ${process.env.NODE_ENV} mode`);
   console.info(`Express server listening on port ${PORT}`);
   if (process.env.NODE_ENV === 'development') broadcastDevReady(build);
