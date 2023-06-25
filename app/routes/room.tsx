@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs, V2_MetaFunction } from '@remix-run/node';
-import { json, redirect } from '@remix-run/node';
-import { useLoaderData, useActionData, useSearchParams } from '@remix-run/react';
+import { json } from '@remix-run/node';
+import { Form } from '@remix-run/react';
 import * as React from 'react';
 import { useSocket } from '~/context';
 import { authenticator } from '~/services/auth.server';
@@ -10,8 +10,13 @@ export async function loader({ request }: LoaderArgs) {
   return json(user);
 }
 
-export async function action({ request }: ActionArgs) {
-  return redirect('/home');
+export async function action({ request, context }: ActionArgs) {
+  const formData = await request.formData();
+  const input = formData.get('input') ?? '';
+  if (typeof input !== 'string') throw new Error('input must be a string');
+  console.log(input);
+  context.socketIo.emit('chat message', input);
+  return json({});
 }
 
 export const meta: V2_MetaFunction = () => {
@@ -25,39 +30,21 @@ export default function Page() {
   React.useEffect(() => {
     if (!socket) return;
 
-    socket.on('event', (data) => {
-      console.log(data);
-    });
-
     socket.on('chat message', (data) => {
       console.log(data);
       setMessages((messages) => [...messages, data]);
     });
-
-    socket.emit('event', 'ping');
   }, [socket]);
-
-  const [searchParams] = useSearchParams();
-  const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const input = formData.get('input');
-    console.log(formData);
-    socket?.emit('chat message', input);
-  };
 
   const messagesList = messages.map((message, index) => <li key={index}>{message}</li>);
 
   return (
     <div>
       {messagesList}
-      <form method="post" onSubmit={handleSubmit}>
+      <Form method="post">
         <input type="text" name="input" />
         <button type="submit">Send</button>
-      </form>
+      </Form>
     </div>
   );
 }

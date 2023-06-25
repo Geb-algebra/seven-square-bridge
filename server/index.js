@@ -44,7 +44,7 @@ app.all(
     build,
     mode: process.env.NODE_ENV,
     getLoadContext() {
-      return {};
+      return { socketIo: io };
     },
   }),
 );
