@@ -18,7 +18,7 @@ model User {
     updatedAt DateTime @updatedAt
 
     password Password?
-    Player   Player[]
+    players  Player[]
 }
 
 model Password {
@@ -29,15 +29,14 @@ model Password {
 }
 
 model Room {
-    id     String   @id
-    Player Player[]
+    id      String   @id @default(cuid())
+    players Player[]
 }
 
 model Player {
     id           String  @id @default(cuid())
     user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId       String
-    socketId     String
     isConnecting Boolean @default(true)
     room         Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
     roomId       String

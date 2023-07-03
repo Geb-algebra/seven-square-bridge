@@ -29,12 +29,10 @@ const io = new Server(httpServer);
 
 io.on('connection', (socket) => {
   console.info('a user connected');
-  socket.on('chat message', (msg) => {
-    console.log('message: ' + msg);
-    socket.broadcast.emit('chat message', msg);
-  });
   socket.on('disconnect', () => {
-    console.info('user disconnected');
+    io.emit('leave room');
+    // should delete from db a player linked to the disconnected user here
+    console.info('a user disconnected');
   });
 });
 

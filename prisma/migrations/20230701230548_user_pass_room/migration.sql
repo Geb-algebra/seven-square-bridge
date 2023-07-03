@@ -22,7 +22,6 @@ CREATE TABLE "Room" (
 CREATE TABLE "Player" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
-    "socketId" TEXT NOT NULL,
     "isConnecting" BOOLEAN NOT NULL DEFAULT true,
     "roomId" TEXT NOT NULL,
     CONSTRAINT "Player_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
