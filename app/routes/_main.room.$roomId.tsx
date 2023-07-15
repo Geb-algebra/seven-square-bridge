@@ -44,7 +44,7 @@ export async function action({ request, context }: ActionArgs) {
   const roomId = formData.get('room-id');
   invariant(typeof roomId === 'string', 'roomId must be a string');
   if (command !== 'reload') {
-    // context.socketIo.emit(command);
+    context.socketIo.to(roomId).emit(command);
     console.debug(`emitted ${command} by ${user.name}`);
   }
 
@@ -142,11 +142,12 @@ export default function Page() {
 
   useEffect(() => {
     const socket = io();
+    socket.emit('join', { roomId: loaderData.roomId });
     setSocket(socket);
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [loaderData.roomId]);
 
   useEffect(() => {
     if (!socket) return;

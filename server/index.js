@@ -29,8 +29,20 @@ const io = new Server(httpServer);
 
 io.on('connection', (socket) => {
   console.info('a user connected');
+  socket.on('join', ({ roomId }) => {
+    socket.join(roomId);
+    console.info(`a user joined room ${roomId}`);
+  });
+  socket.on('disconnecting', () => {
+    console.log(socket.rooms);
+    // HACK: should specify the room to leave, without looping on all rooms
+    socket.rooms.forEach((roomId) => {
+      if (roomId !== socket.id) {
+        socket.to(roomId).emit('leave room');
+      }
+    });
+  });
   socket.on('disconnect', () => {
-    io.emit('leave room');
     // should delete from db a player linked to the disconnected user here
     console.info('a user disconnected');
   });

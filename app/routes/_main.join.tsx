@@ -18,7 +18,7 @@ export async function action({ request, context }: ActionArgs) {
     return json({ error: 'roomName must be a string' }, { status: 400 });
   try {
     const player = simplifyPlayer(await createPlayerInRoom(user.id, roomId));
-    context.socketIo.emit('join room');
+    context.socketIo.to(roomId).emit('join room');
     console.info(`Player ${player.userName} joined room ${player.roomId}`);
     return redirect(`/room/${player.roomId}`);
   } catch (error) {
