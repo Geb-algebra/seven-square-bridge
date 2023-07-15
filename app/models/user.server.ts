@@ -38,6 +38,7 @@ export const createUser = async (name: User['name'], password: string) => {
       },
     });
     console.info('new user created:', user);
+    return user;
   } catch (error) {
     console.error(error);
     throw error;
