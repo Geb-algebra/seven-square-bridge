@@ -5,9 +5,11 @@ import express from 'express';
 import morgan from 'morgan';
 import { createRequestHandler } from '@remix-run/express';
 
-import * as build from '../build/index.js';
-import { broadcastDevReady } from '@remix-run/node';
+import * as remixBuild from '../build/index.js';
+import { type ServerBuild, broadcastDevReady } from '@remix-run/node';
 import { Server } from 'socket.io';
+
+const build = remixBuild as unknown as ServerBuild;
 
 const app = express();
 
@@ -61,7 +63,7 @@ app.all(
 
 const PORT = process.env.PORT || 3000;
 
-httpServer.listen(PORT, () => {
+app.listen(PORT, () => {
   console.info(`Running app in ${process.env.NODE_ENV} mode`);
   console.info(`Express server listening on port ${PORT}`);
   if (process.env.NODE_ENV === 'development') broadcastDevReady(build);

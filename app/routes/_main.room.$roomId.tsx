@@ -136,8 +136,6 @@ export default function Page() {
   const loaderData = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
 
-  const player = loaderData.player;
-
   const [socket, setSocket] = useState<Socket>();
 
   useEffect(() => {

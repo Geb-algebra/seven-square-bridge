@@ -1,5 +1,5 @@
 import { type V2_MetaFunction, json, type LoaderArgs } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
+import { Link } from '@remix-run/react';
 import { deletePlayerByUserId } from '~/models/game.server';
 import { authenticator } from '~/services/auth.server';
 
@@ -24,7 +24,6 @@ function Button(props: { className: string; name: string; linkTo: string }) {
 }
 
 export default function Index() {
-  const user = useLoaderData<typeof loader>();
   return (
     <div className="max-w-lg h-full mx-auto flex justify-between">
       <Button
