@@ -1,12 +1,6 @@
 import type { ActionArgs, LoaderArgs, V2_MetaFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import {
-  useLoaderData,
-  Link,
-  useFetcher,
-  useRouteError,
-  isRouteErrorResponse,
-} from '@remix-run/react';
+import { Link, useFetcher, useRouteError, isRouteErrorResponse, useParams } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import { type Socket, io } from 'socket.io-client';
 import invariant from 'tiny-invariant';
@@ -43,23 +37,9 @@ export async function action({ request, context }: ActionArgs) {
   invariant(typeof command === 'string', 'command must be a string');
   const roomId = formData.get('room-id');
   invariant(typeof roomId === 'string', 'roomId must be a string');
-  if (command !== 'reload') {
-    context.socketIo.to(roomId).emit(command);
-    console.debug(`emitted ${command} by ${user.name}`);
-  }
-
-  // reload the room info only if the command is join or leave
-  const players = (await getPlayersByRoomId(roomId)).map(simplifyPlayer);
-  const player = players.find((p) => p.userName === user.name);
-  if (!player) {
-    throw json({ error: 'You are not in this room' }, { status: 400 });
-  }
-
-  return json({
-    roomId,
-    players,
-    player,
-  });
+  context.socketIo.to(roomId).emit(command);
+  console.debug(`emitted ${command} by ${user.name}`);
+  return null;
 }
 
 export const meta: V2_MetaFunction = () => {
@@ -77,7 +57,8 @@ function PlayerPanel(props: { userName: string }) {
   );
 }
 
-function PlayerPanels(props: { players: SimplePlayer[] }) {
+function PlayerPanels(props: { players: SimplePlayer[] | undefined }) {
+  if (!props.players) return null;
   return (
     <div className="flex gap-4">
       {props.players.map((player) => (
@@ -133,38 +114,54 @@ export function ErrorBoundary() {
 }
 
 export default function Page() {
-  const loaderData = useLoaderData<typeof loader>();
-  const fetcher = useFetcher<typeof action>();
+  const { roomId } = useParams();
+  const fetcher = useFetcher<typeof loader>();
+
+  useEffect(() => {
+    if (fetcher.state === 'idle' && !fetcher.data) {
+      fetcher.load('/room/' + roomId);
+    }
+  }, [fetcher, roomId]);
 
   const [socket, setSocket] = useState<Socket>();
 
   useEffect(() => {
     const socket = io();
-    socket.emit('join', { roomId: loaderData.roomId });
+    socket.emit('join', { roomId });
     setSocket(socket);
+    console.log('socket created');
     return () => {
       socket.disconnect();
     };
-  }, [loaderData.roomId]);
+  }, [roomId]);
 
   useEffect(() => {
+    console.log('socket handler created');
     if (!socket) return;
+    // remove onAny listeners before adding new ones to avoid duplicate listeners
+    socket.offAny();
     socket.onAny((event) => {
-      const formData = new FormData();
       console.log(`got ${event}`);
-      formData.append('command', 'reload');
-      formData.append('room-id', loaderData.roomId);
-      fetcher.submit(formData, { method: 'post' });
-      console.log(fetcher.data);
+      fetcher.load('/room/' + roomId);
     });
-  }, [socket, fetcher, loaderData.roomId]);
+  }, [socket, fetcher, roomId]);
 
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="text-2xl font-bold">Room {loaderData?.roomId}</div>
-        <PlayerPanels players={fetcher.data?.players ?? loaderData.players} />
+        <div className="text-2xl font-bold">Room {roomId}</div>
+        <PlayerPanels players={fetcher.data?.players} />
       </div>
+      <fetcher.Form method="post">
+        <input type="hidden" name="command" value="something" />
+        <input type="hidden" name="room-id" value={roomId} />
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Emit Something
+        </button>
+      </fetcher.Form>
       <LeaveButton />
     </div>
   );
