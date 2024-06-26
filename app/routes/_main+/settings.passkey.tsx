@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { AccountRepository } from "~/accounts/lifecycle/account.server.ts";
 import { ObjectNotFoundError } from "~/errors";

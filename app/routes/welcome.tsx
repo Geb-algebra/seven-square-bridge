@@ -16,7 +16,7 @@ export default function Page() {
   return (
     <div className="flex justify-center">
       <div>
-        <h1 className="font-mono font-bold text-5xl my-12">8bit Stack</h1>
+        <h1 className="font-mono font-bold text-5xl my-12">Seven^2 Bridge</h1>
         <Link to="/login">
           <button
             type="button"

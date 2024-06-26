@@ -6,6 +6,8 @@ import compression from "compression";
 import express from "express";
 import morgan from "morgan";
 
+import { Server } from "socket.io";
+
 const viteDevServer =
   process.env.NODE_ENV === "production"
     ? undefined
@@ -47,6 +49,29 @@ app.use(morgan("tiny")); // logging
 
 const httpServer = createServer(app);
 
+const io = new Server(httpServer);
+
+io.on("connection", (socket) => {
+  console.info("a user connected");
+  socket.on("join", ({ roomId }) => {
+    socket.join(roomId);
+    console.info(`a user joined room ${roomId}`);
+  });
+  socket.on("disconnecting", () => {
+    console.log(socket.rooms);
+    // HACK: should specify the room to leave, without looping on all rooms
+    for (const roomId of socket.rooms) {
+      if (roomId !== socket.id) {
+        socket.to(roomId).emit("leave room");
+      }
+    }
+  });
+  socket.on("disconnect", () => {
+    // should delete from db a player linked to the disconnected user here
+    console.info("a user disconnected");
+  });
+});
+
 app.all(
   "*",
   createRequestHandler({
@@ -55,6 +80,9 @@ app.all(
       ? () => viteDevServer.ssrLoadModule("virtual:remix/server-build")
       : await import("../build/server/index.js"),
     mode: process.env.NODE_ENV,
+    getLoadContext() {
+      return { socketIo: io };
+    },
   }),
 );
 

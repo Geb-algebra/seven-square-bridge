@@ -1,6 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import type { RegistrationResponseJSON } from "@simplewebauthn/typescript-types";
 import { handleFormSubmit } from "remix-auth-webauthn/browser";

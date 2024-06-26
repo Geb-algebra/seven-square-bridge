@@ -1,5 +1,4 @@
-import type { LoaderFunctionArgs, MetaFunction, SerializeFrom } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { AccountRepository } from "~/accounts/lifecycle/account.server.ts";
@@ -12,7 +11,7 @@ import PasskeyHero from "~/components/PasskeyHero.tsx";
 import { authenticator } from "~/services/auth.server.ts";
 
 import { ObjectNotFoundError } from "~/errors";
-import type { action as passkeyAction } from "~/routes/_main.settings.passkey.tsx";
+import type { action as passkeyAction } from "~/routes/_main+/settings.passkey";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request, { failureRedirect: "/welcome" });
