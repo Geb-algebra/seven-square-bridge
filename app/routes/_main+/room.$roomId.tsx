@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { type Socket, io } from "socket.io-client";
 import invariant from "tiny-invariant";
+import { COMMANDS } from "~/game/models";
 import { getRoomById } from "~/room/lifecycle";
 import type { Player } from "~/room/models";
 import { authenticator } from "~/services/auth.server";
@@ -40,6 +41,7 @@ export const action = defineAction(async ({ request, context }) => {
   console.debug(`action called by ${user.name}`);
   const command = formData.get("command");
   invariant(typeof command === "string", "command must be a string");
+  invariant((COMMANDS as readonly string[]).includes(command), "Invalid command");
   const roomId = formData.get("room-id");
   invariant(typeof roomId === "string", "roomId must be a string");
   context.socketIo.to(roomId).emit(command);
@@ -51,7 +53,6 @@ function PlayerPanel(props: { player: Player }) {
   return (
     <div className="flex flex-col items-center">
       <div className="flex items-center gap-2">
-        {props.player.isInRoom ? <div className="w-4 h-4 rounded-full bg-green-500" /> : null}
         <div className="text-xl font-bold">{props.player.userName}</div>
       </div>
     </div>
@@ -69,16 +70,6 @@ function PlayerPanels(props: { players: Player[] | undefined }) {
   );
 }
 
-function LeaveButton() {
-  return (
-    // <Link to="/">
-    <button type="submit" className="rounded-xl h-12 w-32 bg-black text-white">
-      Leave
-    </button>
-    // </Link>
-  );
-}
-
 export function ErrorBoundary() {
   const error = useRouteError();
 
@@ -91,7 +82,6 @@ export function ErrorBoundary() {
           </h1>
           <p>{error.data}</p>
         </div>
-        <LeaveButton />
       </>
     );
   }
