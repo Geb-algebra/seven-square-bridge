@@ -1,6 +1,7 @@
 export type Room = {
   id: string;
   players: Player[];
+  game: string | null;
 };
 
 export type Player = {

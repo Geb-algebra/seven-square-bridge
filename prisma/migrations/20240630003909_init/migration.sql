@@ -25,7 +25,8 @@ CREATE TABLE "Authenticator" (
 
 -- CreateTable
 CREATE TABLE "Room" (
-    "id" TEXT NOT NULL PRIMARY KEY
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "game" TEXT
 );
 
 -- CreateTable

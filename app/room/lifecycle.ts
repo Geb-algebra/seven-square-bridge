@@ -32,6 +32,7 @@ export async function createRoomAndPlayer(userId: string): Promise<Room> {
       userName: player.user?.name ?? "Unknown",
       roomId: player.roomId,
     })),
+    game: null,
   };
 }
 
@@ -91,6 +92,7 @@ export async function getRoomById(roomId: string): Promise<Room | null> {
       userName: player.user?.name ?? "Unknown",
       roomId: player.roomId,
     })),
+    game: null,
   };
 }
 

@@ -39,13 +39,13 @@ export default function Index() {
         </Overlay>
         <nav className="fixed w-full h-16 flex justify-between items-center bg-white border-b border-gray-300">
           <Link to="/">
-            <h1 className="text-2xl font-bold mx-6">8bit stack</h1>
+            <h1 className="text-2xl font-bold mx-6">Seven^2 Bridge</h1>
           </Link>
           <button type="button" className="px-6 h-full" onClick={() => setIsMenuOpen(true)}>
             <h2>{user.name}</h2>
           </button>
         </nav>
-        <div className="pt-16">
+        <div className="pt-16 max-w-5xl mx-auto">
           <Outlet />
         </div>
       </div>

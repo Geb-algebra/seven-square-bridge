@@ -81,7 +81,9 @@ app.all(
       : await import("../build/server/index.js"),
     mode: process.env.NODE_ENV,
     getLoadContext() {
-      return { socketIo: io };
+      return {
+        socketIo: io,
+      };
     },
   }),
 );

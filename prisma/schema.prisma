@@ -45,6 +45,7 @@ model Authenticator {
 model Room {
     id      String   @id
     players Player[]
+    game    String?
 }
 
 model Player {
