@@ -5,14 +5,14 @@ import OthersHand from "./OthersHand";
 export default function OthersField(props: {
   numHandCards: number;
   playerName: string;
-  melds: Card[][];
+  melds: Map<string, Card[]>;
 }) {
   return (
     <div className="flex flex-col items-center">
       <OthersHand numCards={props.numHandCards} playerName={props.playerName} />
       <div className="flex gap-20 items-center mt-4">
-        {props.melds.map((meld, i) => (
-          <Meld key={meld.join(",")} cards={meld} />
+        {Array.from(props.melds.entries()).map(([meldId, meld]) => (
+          <Meld key={meldId} cards={meld} />
         ))}
       </div>
     </div>

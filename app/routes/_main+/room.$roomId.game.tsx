@@ -5,18 +5,10 @@ import {
 import invariant from "tiny-invariant";
 import { getGameByRoomId, getInitializedGame, saveGameByRoomId } from "~/game/lifecycle";
 import type { Card } from "~/game/models";
-import {
-  addToMeld,
-  discard,
-  draw,
-  finishWaitingCalled,
-  getAllMelds,
-  getHandsAndMeldsFromDeck,
-  isSelectedCardMeldable,
-  makeNewMeld,
-} from "~/game/service";
+import { discard, draw, finishWaitingCalled, getHandsAndMeldsFromDeck } from "~/game/service";
+import { meldIfMeldable } from "~/game/service/deck-modifier";
 import { getRoomById } from "~/room/lifecycle";
-import type { Player, Room } from "~/room/models";
+import type { Player } from "~/room/models";
 import { authenticator } from "~/services/auth.server";
 import { getSession } from "~/services/session.server";
 import { getRequiredStringFromFormData } from "~/utils";
@@ -41,7 +33,7 @@ export const action = defineAction(async ({ request, response, params, context }
   const formData = await request.formData();
   const command = getRequiredStringFromFormData(formData, "command");
 
-  if (command === "start game") {
+  if (command === "start-game") {
     const game = getInitializedGame(room.players);
     await saveGameByRoomId(player.roomId, game);
     context.socketIo.emit(command);
@@ -60,28 +52,14 @@ export const action = defineAction(async ({ request, response, params, context }
   ) as Card[];
   if (command === "meld") {
     try {
-      makeNewMeld(selectedCards, player, game.deck);
-      await saveGameByRoomId(player.roomId, game);
+      meldIfMeldable(selectedCards, player, game.deck);
+      saveGameByRoomId(player.roomId, game);
       context.socketIo.emit(command);
       return {
         game,
         error: null,
       };
     } catch (error) {
-      const existingMelds = getAllMelds(game.deck);
-      for (const meldId of existingMelds.keys()) {
-        try {
-          addToMeld(selectedCards, player, meldId, game.deck);
-          await saveGameByRoomId(player.roomId, game);
-          context.socketIo.emit(command);
-          return {
-            game,
-            error: null,
-          };
-        } catch (e) {
-          console.log(e);
-        }
-      }
       response.status = 400;
       return { game, error: "selected cards can't be meld" };
     }

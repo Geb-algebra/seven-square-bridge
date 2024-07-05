@@ -1,4 +1,4 @@
-import type { Card, Deck } from "~/game/models";
+import type { Card } from "~/game/models";
 import Meld from "./Meld";
 import MyHand from "./MyHand";
 
@@ -6,7 +6,7 @@ export default function MyField(props: {
   hand: Card[];
   selectedCards: Card[];
   setSelectedCards: (cards: Card[]) => void;
-  melds: Card[][];
+  melds: Map<string, Card[]>;
   disabled?: boolean;
   className?: string;
 }) {
@@ -15,8 +15,8 @@ export default function MyField(props: {
   return (
     <div className={`flex flex-col items-center ${props.className}`}>
       <div className="flex gap-20 items-center mt-4">
-        {props.melds.map((meld, i) => (
-          <Meld key={meld.join(",")} cards={meld} />
+        {Array.from(props.melds.entries()).map(([meldId, meld]) => (
+          <Meld key={meldId} cards={meld} />
         ))}
       </div>
       <div className="flex gap-6">

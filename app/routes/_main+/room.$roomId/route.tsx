@@ -3,7 +3,6 @@ import {
   unstable_defineLoader as defineLoader,
 } from "@remix-run/node";
 import {
-  Form,
   isRouteErrorResponse,
   useFetcher,
   useLoaderData,
@@ -16,7 +15,7 @@ import { type Socket, io } from "socket.io-client";
 import invariant from "tiny-invariant";
 import { getGameByRoomId } from "~/game/lifecycle";
 import { COMMANDS, type Card } from "~/game/models";
-import { findAllCardsAt, findFirstCardAt, getHandsAndMeldsFromDeck } from "~/game/service";
+import { findFirstCardAt, getHandsAndMeldsFromDeck } from "~/game/service";
 import { getRoomById } from "~/room/lifecycle";
 import type { Player } from "~/room/models";
 import { authenticator } from "~/services/auth.server";
@@ -135,7 +134,7 @@ export default function Page() {
                 key={player.id}
                 numHandCards={cards.hand.length}
                 playerName={player.userName}
-                melds={Array.from(cards.melds.values())}
+                melds={cards.melds}
               />
             );
           }
@@ -163,7 +162,7 @@ export default function Page() {
           hand={myCards.hand}
           selectedCards={selectedCards}
           setSelectedCards={setSelectedCards}
-          melds={Array.from(myCards.melds.values())}
+          melds={myCards.melds}
           disabled={game.currentPlayerIndex !== game.players.findIndex((p) => p.id === me.id)}
         />
       </gameFetcher.Form>
